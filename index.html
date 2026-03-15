@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <title>Gestión de Ancianato</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icono/icon-192x192.png">
+    <link rel="apple-touch-icon" href="icono/icon-192x192.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Ancianato Casa del Amigo</h1>
+    </header>
+
+    <main class="container">
+
+        <section id="tab-abuelos" class="tab-content active">
+            <div class="flex-between mb-1" style="align-items: flex-start;">
+                <div>
+                    <h2 style="margin-bottom: 0.2rem;">Lista de abuelos</h2>
+                    <span class="badge badge-info" style="display: inline-block; margin-top: 0.3rem;">Total: <span
+                            id="total-abuelos">0</span></span>
+                </div>
+                <button class="btn-icon" onclick="abrirModalNuevo('modal-abuelo')"
+                    style="color:var(--primary); font-size: 1.4rem;" title="Añadir Abuelo">➕</button>
+            </div>
+
+            <!-- SELECT DE ORDENAMIENTO -->
+            <div class="flex-between mb-1"
+                style="align-items: center; background: var(--card-bg); padding: 0.5rem; border-radius: 12px; box-shadow: var(--shadow);">
+                <label style="font-size: 0.9rem; font-weight: 600; color: var(--text);">Ordenar por:</label>
+                <select id="sort-abuelos" onchange="renderAbuelos()"
+                    style="padding: 0.4rem; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9rem; outline: none; background: var(--bg);">
+                    <option value="alfabetico">Alfabético</option>
+                    <option value="edad">Edad</option>
+                    <option value="genero">Género</option>
+                    <option value="cumpleanos">Cumpleaños</option>
+                </select>
+            </div>
+
+            <div id="lista-abuelos"></div>
+        </section>
+
+        <section id="tab-medicinas" class="tab-content">
+            <div class="flex-between mb-1" style="align-items: flex-start;">
+                <div>
+                    <h2 style="margin-bottom: 0.2rem;">Lista de medicinas</h2>
+                    <span class="badge badge-info" style="display: inline-block; margin-top: 0.3rem;">Total: <span
+                            id="total-medicinas">0</span></span>
+                </div>
+                <button class="btn-icon" onclick="abrirModalNuevo('modal-medicina')"
+                    style="color:var(--primary); font-size: 1.4rem;" title="Programar Medicina">➕</button>
+            </div>
+
+            <!-- SELECT DE VISTA DE MEDICINAS -->
+            <div class="flex-between mb-1"
+                style="align-items: center; background: var(--card-bg); padding: 0.5rem; border-radius: 12px; box-shadow: var(--shadow);">
+                <label style="font-size: 0.9rem; font-weight: 600; color: var(--text);">Vista:</label>
+                <select id="vista-medicinas" onchange="renderMedicinas()"
+                    style="padding: 0.4rem; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9rem; outline: none; background: var(--bg);">
+                    <option value="actual">Lista general</option>
+                    <option value="agrupada">Por medicina</option>
+                    <option value="franja">Por franja horaria</option>
+                </select>
+            </div>
+
+            <div id="lista-medicinas"></div>
+        </section>
+
+        <section id="tab-finanzas" class="tab-content">
+            <div class="card flex-between" style="padding: 1rem; align-items: center;">
+                <label style="margin: 0; font-size: 0.9rem; font-weight: 600; color: var(--text);">Mes de
+                    control:</label>
+                <input type="month" id="mes-control"
+                    style="border:none; padding:0; background:transparent; font-weight:bold; color:var(--primary); font-size: 1.2rem !important; width: auto; text-align: right; outline: none;"
+                    onchange="renderFinanzas()">
+            </div>
+
+            <div class="balance-box" id="caja-balance">
+                <p style="opacity: 0.9;">BALANCE</p>
+                <h2 id="balance-total">0,00$</h2>
+                <div
+                    style="margin-top: 0.5rem; font-size: 0.85rem; opacity: 0.9; display: flex; justify-content: space-around;">
+                    <span>Ingresos: <span id="balance-ingresos">0,00$</span></span>
+                    <span>Gastos: <span id="balance-gastos">0,00$</span></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="margin-bottom: 0.5rem;">
+                    <h2 style="margin-bottom: 0.4rem;">Ingresos por aportes</h2>
+                    <div class="flex-between" style="margin-bottom: 0.5rem;">
+                        <span class="badge badge-success badge-fixed">Aportes: <span
+                                id="total-aportado">0,00</span>$</span>
+                        <span class="badge badge-warning badge-fixed">Falta: <span
+                                id="total-falta-aportes">0,00</span>$</span>
+                    </div>
+                </div>
+                <hr class="divider" style="margin-bottom: 0.5rem; opacity: 0.3;">
+                <div id="lista-aportes"></div>
+            </div>
+
+            <div class="card">
+                <div class="flex-between" style="align-items: flex-start; margin-bottom: 0.5rem;">
+                    <div>
+                        <h2 style="margin-bottom: 0.4rem;">Ingresos varios</h2>
+                        <span class="badge badge-success" style="display: inline-block;">Total: <span
+                                id="total-ingresos-mes">0,00</span>$</span>
+                    </div>
+                    <button class="btn-icon" onclick="abrirModalNuevo('modal-ingreso')"
+                        style="color:var(--primary); font-size: 1.4rem;" title="Añadir ingreso">➕</button>
+                </div>
+                <hr class="divider" style="margin-bottom: 0.5rem; opacity: 0.3;">
+                <div id="lista-ingresos" style="margin-top: 0.5rem;"></div>
+            </div>
+
+            <div class="card">
+                <div class="flex-between" style="align-items: flex-start; margin-bottom: 0.5rem;">
+                    <div>
+                        <h2 style="margin-bottom: 0.4rem;">Gastos por personal</h2>
+                        <span class="badge badge-danger" style="display: inline-block;">Total: <span
+                                id="total-nomina-mes">0,00</span>$</span>
+                    </div>
+                    <button class="btn-icon" onclick="abrirModalNuevo('modal-empleado')"
+                        style="color:var(--primary); font-size: 1.4rem;" title="Añadir personal">➕</button>
+                </div>
+                <hr class="divider" style="margin-bottom: 0.5rem; opacity: 0.3;">
+                <div id="lista-empleados" style="margin-top: 0.5rem;"></div>
+            </div>
+
+            <div class="card">
+                <div class="flex-between" style="align-items: flex-start; margin-bottom: 0.5rem;">
+                    <div>
+                        <h2 style="margin-bottom: 0.4rem;">Gastos varios</h2>
+                        <span class="badge badge-danger" style="display: inline-block;">Total: <span
+                                id="total-gastos-mes">0,00</span>$</span>
+                    </div>
+                    <button class="btn-icon" onclick="abrirModalNuevo('modal-gasto')"
+                        style="color:var(--primary); font-size: 1.4rem;" title="Añadir gasto">➕</button>
+                </div>
+                <hr class="divider" style="margin-bottom: 0.5rem; opacity: 0.3;">
+                <div id="lista-gastos" style="margin-top: 0.5rem;"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <nav class="bottom-nav">
+        <button class="active" onclick="switchTab('abuelos', this)"><span>👤</span> Abuelos</button>
+        <button onclick="switchTab('medicinas', this)"><span>💊</span> Medicinas</button>
+        <button onclick="switchTab('finanzas', this)"><span>📊</span> Finanzas</button>
+    </nav>
+
+    <div id="modal-abuelo" class="modal">
+        <div class="modal-content">
+            <h2 id="titulo-modal-abuelo" style="margin-bottom:1rem;">Añadir Abuelo(a)</h2>
+            <form id="form-abuelo" onsubmit="guardarAbuelo(event)">
+                <div class="form-group"><label>Nombre y Apellido</label><input type="text" id="ab-nombre" required>
+                </div>
+                <div class="form-group"><label>Cédula</label><input type="text" id="ab-cedula"
+                        placeholder="Ej. V-12.345.678"></div>
+                <div class="form-group"><label>Fecha de nacimiento</label><input type="date" id="ab-fecha" required>
+                </div>
+                <div class="form-group">
+                    <label>Género</label>
+                    <select id="ab-genero" required>
+                        <option value="Femenino">Dama</option>
+                        <option value="Masculino">Caballero</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Familiar</label><input type="text" id="ab-familiar"
+                        placeholder="Nombre del familiar"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="ab-telefono"
+                        placeholder="Ej. 0414-0000000"></div>
+                <div class="form-group"><label>Aporte mensual ($)</label><input type="number" step="0.01" id="ab-cuota"
+                        required></div>
+                <div class="flex-center mt-1">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-abuelo')">Cancelar</button>
+                    <button type="submit" class="btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-medicina" class="modal">
+        <div class="modal-content">
+            <h2 id="titulo-modal-medicina" style="margin-bottom:1rem;">Programar Medicina</h2>
+            <form id="form-medicina" onsubmit="guardarMedicina(event)">
+                <div class="form-group"><label>Abuelo(a)</label><select id="med-abuelo" required></select></div>
+
+                <div class="form-group">
+                    <label>Medicamento y dosis</label>
+                    <select id="med-nombre-select" onchange="checkMedicinaSelect()" required></select>
+                    <input type="text" id="med-nombre-input" placeholder="Escriba la nueva medicina..."
+                        style="display:none; margin-top:0.5rem;">
+                </div>
+
+                <div class="form-group">
+                    <label>Turno de toma</label>
+                    <select id="med-hora" required>
+                        <option value="Mañana">Mañana</option>
+                        <option value="Tarde">Tarde</option>
+                        <option value="Noche">Noche</option>
+                    </select>
+                </div>
+                <div class="flex-center mt-1">
+                    <button type="button" class="btn btn-outline"
+                        onclick="closeModal('modal-medicina')">Cancelar</button>
+                    <button type="submit" class="btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-empleado" class="modal">
+        <div class="modal-content">
+            <h2 id="titulo-modal-empleado" style="margin-bottom:0.2rem;">Añadir Personal</h2>
+            <p class="text-sm mb-1" style="color: var(--text-light); font-style: italic;">* Se registra como monto fijo
+                para cada mes.</p>
+            <form id="form-empleado" onsubmit="guardarEmpleado(event)">
+                <div class="form-group"><label>Nombre y Apellido</label><input type="text" id="emp-nombre" required>
+                </div>
+                <div class="form-group"><label>Cédula</label><input type="text" id="emp-cedula"
+                        placeholder="Ej. V-12345678"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="emp-telefono"
+                        placeholder="Ej. 0414-0000000"></div>
+                <div class="form-group"><label>Datos bancarios</label><input type="text" id="emp-banco"
+                        placeholder="Banco, Pago Móvil o Nro Cuenta"></div>
+                <div class="form-group">
+                    <label>Área de trabajo</label>
+                    <select id="emp-rol" required>
+                        <option value="Cocina">Cocina</option>
+                        <option value="Lavandería">Lavandería</option>
+                        <option value="Limpieza">Limpieza</option>
+                        <option value="Cuidados">Cuidados</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Pago quincenal ($)</label><input type="number" step="0.01" id="emp-pago"
+                        required></div>
+                <div class="flex-center mt-1">
+                    <button type="button" class="btn btn-outline"
+                        onclick="closeModal('modal-empleado')">Cancelar</button>
+                    <button type="submit" class="btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-gasto" class="modal">
+        <div class="modal-content">
+            <h2 id="titulo-modal-gasto" style="margin-bottom:1rem;">Registrar Gasto</h2>
+            <form id="form-gasto" onsubmit="guardarGasto(event)">
+                <div class="form-group"><label>Descripción del gasto</label><input type="text" id="gas-desc" required>
+                </div>
+                <div class="form-group"><label>Fecha</label><input type="date" id="gas-fecha" required></div>
+                <div class="form-group"><label>Monto ($)</label><input type="number" step="0.01" id="gas-monto"
+                        required></div>
+                <div class="flex-center mt-1">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-gasto')">Cancelar</button>
+                    <button type="submit" class="btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-ingreso" class="modal">
+        <div class="modal-content">
+            <h2 id="titulo-modal-ingreso" style="margin-bottom:1rem;">Registrar Ingreso</h2>
+            <form id="form-ingreso" onsubmit="guardarIngreso(event)">
+                <div class="form-group"><label>Descripción del ingreso</label><input type="text" id="ing-desc" required>
+                </div>
+                <div class="form-group"><label>Fecha</label><input type="date" id="ing-fecha" required></div>
+                <div class="form-group"><label>Monto ($)</label><input type="number" step="0.01" id="ing-monto"
+                        required></div>
+                <div class="flex-center mt-1">
+                    <button type="button" class="btn btn-outline"
+                        onclick="closeModal('modal-ingreso')">Cancelar</button>
+                    <button type="submit" class="btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-aporte" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom:1rem;">Registrar Abono / Aporte</h2>
+            <form id="form-aporte" onsubmit="guardarAporte(event)">
+                <input type="hidden" id="aporte-id-abuelo">
+
+                <div class="form-group">
+                    <label>Tipo de Pago</label>
+                    <select id="aporte-tipo" onchange="cambiarTipoAporte()">
+                        <option value="completo">Abono completo</option>
+                        <option value="fraccionado">Abono fraccionado</option>
+                    </select>
+                </div>
+
+                <div class="form-group"><label>Fecha del Pago</label><input type="date" id="aporte-fecha" required>
+                </div>
+                <div class="form-group"><label>Monto Abonado ($)</label><input type="number" step="0.01"
+                        id="aporte-monto" required></div>
+                <div class="flex-center mt-1">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-aporte')">Cancelar</button>
+                    <button type="submit" class="btn">Guardar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-info-abuelo" class="modal">
+        <div class="modal-content">
+            <div class="flex-between mb-1" style="align-items: flex-start;">
+                <div style="flex: 1; padding-right: 10px;">
+                    <h2 id="info-ab-nombre" style="margin-bottom: 0.1rem; color: var(--text); word-break: break-word;">
+                        Nombre</h2>
+                    <p class="text-sm text-light" id="info-ab-edad" style="font-weight: bold;">Edad</p>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                    <button class="btn-icon" id="btn-info-ab-editar"
+                        style="font-size: 1.1rem; color: var(--primary); border: 1px solid var(--primary); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Editar">✏️</button>
+                    <button class="btn-icon" id="btn-info-ab-eliminar"
+                        style="font-size: 1.1rem; color: var(--danger); border: 1px solid var(--danger); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Eliminar">🗑️</button>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="info-item">
+                    <span><strong>Cédula:</strong></span>
+                    <div class="info-value">
+                        <span id="info-ab-cedula"></span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span><strong>Género:</strong></span>
+                    <div class="info-value">
+                        <span id="info-ab-genero"></span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span><strong>Fecha de Nac:</strong></span>
+                    <div class="info-value">
+                        <span id="info-ab-fecha"></span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span><strong>Familiar:</strong></span>
+                    <div class="info-value">
+                        <span id="info-ab-familiar"></span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span><strong>Teléfono:</strong></span>
+                    <div class="info-value">
+                        <span id="info-ab-telefono"></span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span><strong>Aporte Mensual:</strong></span>
+                    <div class="info-value">
+                        <span id="info-ab-cuota"></span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" style="background-color: var(--text-light); padding: 0.8rem;"
+                onclick="closeModal('modal-info-abuelo')">Cerrar</button>
+        </div>
+    </div>
+
+
+    <div id="modal-info-medicina" class="modal">
+        <div class="modal-content">
+            <div class="flex-between mb-1" style="align-items: flex-start;">
+                <div style="flex: 1; padding-right: 10px;">
+                    <h2 id="info-med-nombre" style="margin-bottom: 0.1rem; color: var(--text); word-break: break-word;">
+                        Medicina</h2>
+                    <p class="text-sm text-light" id="info-med-hora"
+                        style="font-weight: bold; font-size: 1.1rem; color: var(--primary);">Hora</p>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                    <button class="btn-icon" id="btn-info-med-editar"
+                        style="font-size: 1.1rem; color: var(--primary); border: 1px solid var(--primary); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Editar">✏️</button>
+                    <button class="btn-icon" id="btn-info-med-eliminar"
+                        style="font-size: 1.1rem; color: var(--danger); border: 1px solid var(--danger); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Eliminar">🗑️</button>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="info-item">
+                    <span><strong>Abuelo(a):</strong></span>
+                    <div class="info-value"><span id="info-med-abuelo"></span></div>
+                </div>
+            </div>
+            <button class="btn" style="background-color: var(--text-light); padding: 0.8rem;"
+                onclick="closeModal('modal-info-medicina')">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="modal-info-empleado" class="modal">
+        <div class="modal-content">
+            <div class="flex-between mb-1" style="align-items: flex-start;">
+                <div style="flex: 1; padding-right: 10px;">
+                    <h2 id="info-emp-nombre" style="margin-bottom: 0.1rem; color: var(--text); word-break: break-word;">
+                        Nombre</h2>
+                    <p class="text-sm text-light" id="info-emp-rol"
+                        style="text-transform: uppercase; font-weight: bold;">Rol</p>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                    <button class="btn-icon" id="btn-info-editar"
+                        style="font-size: 1.1rem; color: var(--primary); border: 1px solid var(--primary); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Editar">✏️</button>
+                    <button class="btn-icon" id="btn-info-eliminar"
+                        style="font-size: 1.1rem; color: var(--danger); border: 1px solid var(--danger); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Eliminar">🗑️</button>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="info-item">
+                    <span><strong>Banco:</strong></span>
+                    <div class="info-value">
+                        <span id="info-emp-banco"></span>
+                        <button class="btn-copy" onclick="copiarAlPortapapeles('info-emp-banco', this)">📋</button>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span><strong>Cédula:</strong></span>
+                    <div class="info-value">
+                        <span id="info-emp-cedula"></span>
+                        <button class="btn-copy" onclick="copiarAlPortapapeles('info-emp-cedula', this)">📋</button>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span><strong>Teléfono:</strong></span>
+                    <div class="info-value">
+                        <span id="info-emp-telefono"></span>
+                        <button class="btn-copy" onclick="copiarAlPortapapeles('info-emp-telefono', this)">📋</button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" style="background-color: var(--text-light); padding: 0.8rem;"
+                onclick="closeModal('modal-info-empleado')">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="modal-info-gasto" class="modal">
+        <div class="modal-content">
+            <div class="flex-between mb-1" style="align-items: flex-start;">
+                <div style="flex: 1; padding-right: 10px;">
+                    <h2 id="info-gas-desc" style="margin-bottom: 0.1rem; color: var(--text); word-break: break-word;">
+                        Descripción</h2>
+                    <p class="text-sm text-light" id="info-gas-fecha" style="font-weight: bold;">Fecha</p>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                    <button class="btn-icon" id="btn-info-gas-editar"
+                        style="font-size: 1.1rem; color: var(--primary); border: 1px solid var(--primary); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Editar">✏️</button>
+                    <button class="btn-icon" id="btn-info-gas-eliminar"
+                        style="font-size: 1.1rem; color: var(--danger); border: 1px solid var(--danger); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Eliminar">🗑️</button>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="info-item">
+                    <span><strong>Monto:</strong></span>
+                    <div class="info-value"><span id="info-gas-monto"></span></div>
+                </div>
+            </div>
+            <button class="btn" style="background-color: var(--text-light); padding: 0.8rem;"
+                onclick="closeModal('modal-info-gasto')">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="modal-info-ingreso" class="modal">
+        <div class="modal-content">
+            <div class="flex-between mb-1" style="align-items: flex-start;">
+                <div style="flex: 1; padding-right: 10px;">
+                    <h2 id="info-ing-desc" style="margin-bottom: 0.1rem; color: var(--text); word-break: break-word;">
+                        Descripción</h2>
+                    <p class="text-sm text-light" id="info-ing-fecha" style="font-weight: bold;">Fecha</p>
+                </div>
+                <div style="display: flex; gap: 0.4rem;">
+                    <button class="btn-icon" id="btn-info-ing-editar"
+                        style="font-size: 1.1rem; color: var(--primary); border: 1px solid var(--primary); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Editar">✏️</button>
+                    <button class="btn-icon" id="btn-info-ing-eliminar"
+                        style="font-size: 1.1rem; color: var(--danger); border: 1px solid var(--danger); border-radius: 8px; padding: 0.4rem 0.6rem;"
+                        title="Eliminar">🗑️</button>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="info-item">
+                    <span><strong>Monto:</strong></span>
+                    <div class="info-value"><span id="info-ing-monto"></span></div>
+                </div>
+            </div>
+            <button class="btn" style="background-color: var(--text-light); padding: 0.8rem;"
+                onclick="closeModal('modal-info-ingreso')">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="pwa-install-banner" class="pwa-banner">
+        <div class="pwa-banner-content">
+            <span style="font-size: 2rem;">📲</span>
+            <div class="pwa-banner-text">
+                <b>Instalar Aplicación</b>
+                <span>Accede más rápido y úsala sin conexión.</span>
+            </div>
+        </div>
+        <div class="pwa-banner-actions">
+            <button id="pwa-install-btn" class="btn-instalar">Instalar</button>
+            <button id="pwa-close-banner" class="btn-cerrar-banner">
+                <span style="font-size: 1.2rem;">✖</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrado correctamente', reg))
+                    .catch(err => console.log('Error al registrar Service Worker', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
