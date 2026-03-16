@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ancianato-cache-v0.3';
+const CACHE_NAME = 'ancianato-cache-v0.1';
 const urlsToCache = [
     './',
     './index.html',
@@ -17,24 +17,6 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-    // Si la petición es hacia Google Script, no usar caché, ir directo a internet
-    if (event.request.url.includes('script.google.com')) {
-        return event.respondWith(fetch(event.request));
-    }
-
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            })
-    );
-});
-
-/*
-self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
             .then(response => {
@@ -46,7 +28,6 @@ self.addEventListener('fetch', event => {
             })
     );
 });
-*/
 
 // Update cache on activation
 self.addEventListener('activate', event => {
